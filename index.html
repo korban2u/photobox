@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>index td8 : fetch</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+<main id="photo">
+
+
+    <section id="la_photo">
+
+
+    </section>
+
+
+    <section id="la_categorie">
+
+    </section>
+
+    <section id="les_commentaires">
+
+    </section>
+
+
+    <button id="buttonGallery">Voir gallery</button>
+
+    <section id="les_photos">
+
+    </section>
+
+
+</main>
+
+<script id="photoTemplate" type="text/x-handlebars-template">
+    <h1>Photo : {{id}}</h1>
+    <img src="{{url}}">
+    <h4>Titre : {{titre}}</h4>
+    <p>Description : {{descr}}</p>
+    <p>{{type}}, {{width}} x {{height}}</p>
+
+</script>
+
+<script id="categorieTemplate" type="text/x-handlebars-template">
+    <h4>categorie : {{nom}}</h4>
+</script>
+
+<script id="commentsTemplate" type="text/x-handlebars-template">
+    <h4>commentaires : </h4>
+    <ul>
+        {{#each this}}
+            <li> {{@index}} - ({{pseudo}}) -  {{content}}</li>
+            <br>
+        {{/each}}
+    </ul>
+</script>
+
+<script id="galeryTemplate" type="text/x-handlebars-template">
+    <p><button id="prev">prev</button> <button id="next">next</button> </p>
+        {{#each this.photos}}
+            <img data-photoId="{{id}}" src="{{url}}">
+        {{/each}}
+
+</script>
+
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script type="module" src='dist/index.js' defer></script>
+</body>
+</html>

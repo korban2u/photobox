@@ -1,0 +1,13 @@
+{
+  "name": "photobox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "js/index.js",
+  "dependencies": {
+    "esbuild": "0.25.0",
+    "handlebars": "^4.7.8"
+  },
+  "scripts": {
+    "build": "esbuild js/index.js --bundle  --sourcemap --target=es2015 --outfile=dist/index.js"
+  }
+}
