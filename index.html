@@ -57,7 +57,7 @@
 </script>
 
 <script id="galeryTemplate" type="text/x-handlebars-template">
-    <p><button id="prev">prev</button> <button id="next">next</button> </p>
+    <p><button id="first">first</button> <button id="prev">prev</button> <button id="next">next</button> <button id="last">last</button> </p>
         {{#each this.photos}}
             <img data-photoId="{{id}}" src="{{url}}">
         {{/each}}

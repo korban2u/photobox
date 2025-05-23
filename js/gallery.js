@@ -38,6 +38,8 @@ export async function loadPhotos(photosPromesse) {
         // Ajout des gestionnaires pour la navigation
         document.getElementById("next")?.addEventListener("click", () => next(galleryData));
         document.getElementById("prev")?.addEventListener("click", () => prev(galleryData));
+        document.getElementById("last")?.addEventListener("click", () => last(galleryData));
+        document.getElementById("first")?.addEventListener("click", () => first(galleryData));
 
         // Clic sur une image pour afficher les détails
         document.querySelectorAll("img[data-photoId]").forEach(img => {
@@ -73,12 +75,12 @@ export function prev(gallery) {
 
 
 export function first(gallery){
-    const photoPromesse = loadResource(gallery.links.first);
+    const photoPromesse = loadResource(gallery.links.first.href);
     return loadPhotos(photoPromesse)
 }
 
-export function last(){
-    const photoPromesse = loadResource(gallery.links.last);
+export function last(gallery){
+    const photoPromesse = loadResource(gallery.links.last.href);
     return loadPhotos(photoPromesse)
 }
 
