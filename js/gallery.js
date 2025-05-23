@@ -1,45 +1,84 @@
 import {loadResource} from "./lib/photoloader";
 import {API} from "./lib/phox_api";
-import {displayPicture} from "./ui";
 import {display_galerie} from "./gallery_ui";
+import {getPicture} from "./index.js";
 
+/**
+ * Lance le chargement initial de la galerie.
+ * @returns {Promise<Object>} La galerie avec les photos et liens.
+ */
 export function load() {
-    let photosPromesse = loadResource(API.AFTER_WEB_ETU_URL+API.ENDPOINTS.PHOTOS)
-
+    const photosPromesse = loadResource(API.AFTER_WEB_ETU_URL + API.ENDPOINTS.PHOTOS);
     return loadPhotos(photosPromesse);
 }
 
+/**
+ * Charge les photos et prépare les données pour l'affichage.
+ * @param {Promise<Object>} photosPromesse - Promesse contenant les données JSON des photos.
+ */
+export async function loadPhotos(photosPromesse) {
+    try {
+        const collection = await photosPromesse;
 
-function loadPhotos(photosPromesse){
-    photosPromesse.then(collection => {
-        let listPhotos = [];
-        collection.photos.forEach(p => {
-                let image = {
-                    id: p.photo.id,
-                    titre: p.photo.titre,
-                    file: p.photo.file,
-                    url: API.WEB_ETU_URL + p.photo.original.href,
-                };
+        // Transformation des données brutes en structure utilisable
+        const listPhotos = collection.photos.map(p => ({
+            id: p.photo.id,
+            titre: p.photo.titre,
+            file: p.photo.file,
+            url: API.WEB_ETU_URL + p.photo.original.href,
+        }));
 
-                listPhotos.push(image);
-            }
-        )
-        let galleryData = {
-            links : collection.links,
+        const galleryData = {
+            links: collection.links,
             photos: listPhotos,
-        }
-        // console.log(listPhotos);
+        };
+
         display_galerie(galleryData);
-        document.getElementById("next").addEventListener("click", e =>{
-                next(galleryData)
-                console.log("wshh")
-            }
-        );
+
+        // Ajout des gestionnaires pour la navigation
+        document.getElementById("next")?.addEventListener("click", () => next(galleryData));
+        document.getElementById("prev")?.addEventListener("click", () => prev(galleryData));
+
+        // Clic sur une image pour afficher les détails
+        document.querySelectorAll("img[data-photoId]").forEach(img => {
+            img.addEventListener("click", () => {
+                window.location.hash = img.dataset.photoid;
+                getPicture(img.dataset.photoid);
+            });
+        });
+
         return galleryData;
-    })
+    } catch (err) {
+        console.error("Erreur de chargement des photos :", err);
+    }
 }
 
-export function next(gallery){
-    let photosPromesse = loadResource(gallery.links.href);
+/**
+ * Charge la page suivante de la galerie.
+ * @param {Object} gallery - Données actuelles de la galerie avec liens.
+ */
+export function next(gallery) {
+    const photosPromesse = loadResource(gallery.links.next.href);
     return loadPhotos(photosPromesse);
 }
+
+/**
+ * Charge la page précédente de la galerie.
+ * @param {Object} gallery - Données actuelles de la galerie avec liens.
+ */
+export function prev(gallery) {
+    const photosPromesse = loadResource(gallery.links.prev.href);
+    return loadPhotos(photosPromesse);
+}
+
+
+export function first(gallery){
+    const photoPromesse = loadResource(gallery.links.first);
+    return loadPhotos(photoPromesse)
+}
+
+export function last(){
+    const photoPromesse = loadResource(gallery.links.last);
+    return loadPhotos(photoPromesse)
+}
+

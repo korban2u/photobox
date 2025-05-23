@@ -1,20 +1,28 @@
-import Handlebars from 'handlebars';
+import Handlebars from "handlebars";
 
-export function displayPicture(image){
-    let templateSource = document.querySelector("#photoTemplate").innerHTML;
-    let template = Handlebars.compile(templateSource);
-    document.getElementById("la_photo").innerHTML = template(image);
+/**
+ * Compile un template Handlebars et affiche les données dans un élément du DOM.
+ * @param {string} templateId - Sélecteur CSS du template.
+ * @param {Object} data - Données à injecter.
+ * @param {string} targetId - ID de l'élément HTML cible.
+ */
+function renderTemplate(templateId, data, targetId) {
+    const source = document.querySelector(templateId).innerHTML;
+    const template = Handlebars.compile(source);
+    document.getElementById(targetId).innerHTML = template(data);
 }
 
-export function displayCategorie(categorie){
-    let templateSource = document.querySelector("#categorieTemplate").innerHTML;
-    let template = Handlebars.compile(templateSource);
-    document.getElementById("la_categorie").innerHTML = template(categorie);
+/** Affiche une image individuelle */
+export function displayPicture(image) {
+    renderTemplate("#photoTemplate", image, "la_photo");
 }
 
-export function displayComments(comments){
-    // console.log(comments)
-    let templateSource = document.querySelector("#commentsTemplate").innerHTML;
-    let template = Handlebars.compile(templateSource);
-    document.getElementById("les_commentaires").innerHTML = template(comments);
+/** Affiche une catégorie associée à l'image */
+export function displayCategorie(categorie) {
+    renderTemplate("#categorieTemplate", categorie, "la_categorie");
+}
+
+/** Affiche les commentaires liés à une image */
+export function displayComments(comments) {
+    renderTemplate("#commentsTemplate", comments, "les_commentaires");
 }

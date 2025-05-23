@@ -1,78 +1,73 @@
-import {loadPicture,loadResource} from "./lib/photoloader.js";
-import {load,next} from "./gallery";
-import {display_galerie} from "./gallery_ui";
-import {displayComments, displayPicture} from "./ui.js";
+import {loadPicture, loadResource} from "./lib/photoloader.js";
+import {load} from "./gallery";
+import {displayComments, displayPicture, displayCategorie} from "./ui.js";
 import {API} from "./lib/phox_api";
-import {displayCategorie} from "./ui.js";
 
+/**
+ * Charge et affiche une photo avec ses informations, sa catégorie et ses commentaires.
+ * @param {number|string} id - ID de la photo à afficher.
+ */
+export function getPicture(id) {
+    loadPicture(id)
+        .then(p => {
+            getCategorie(p);
+            getComments(p);
 
+            const image = {
+                id: p.photo.id,
+                titre: p.photo.titre,
+                type: p.photo.type,
+                url: API.WEB_ETU_URL + p.photo.url.href,
+                descr: p.photo.descr,
+            };
 
-function getPicture(id) {
-    let photo = loadPicture(id);
-    photo.then(p => {
-
-        getCategorie(p)
-        getComments(p)
-        let image = {
-            id: p.photo.id,
-            titre: p.photo.titre,
-            type: p.photo.type,
-            url: API.WEB_ETU_URL + p.photo.url.href,
-            descr: p.photo.descr,
-        };
-        // console.log(image);
-
-        displayPicture(image);
-    });
-
+            displayPicture(image);
+        })
+        .catch(err => console.error("Erreur lors du chargement de la photo :", err));
 }
 
+/**
+ * Charge et affiche la catégorie d'une photo.
+ * @param {Object} image - Données complètes de la photo.
+ */
 function getCategorie(image) {
-    let uriCategorie = image.links.categorie.href
-    let promiseCategorie = loadResource(uriCategorie);
-
-    promiseCategorie.then(cat => {
-        let categorie = {
-            id: cat.categorie.id,
-            nom: cat.categorie.nom,
-            descrCategorie: cat.categorie.descr,
-        }
-        displayCategorie(categorie);
-
-    });
-
+    const uriCategorie = image.links.categorie.href;
+    loadResource(uriCategorie)
+        .then(cat => {
+            const categorie = {
+                id: cat.categorie.id,
+                nom: cat.categorie.nom,
+                descrCategorie: cat.categorie.descr,
+            };
+            displayCategorie(categorie);
+        })
+        .catch(err => console.error("Erreur chargement catégorie :", err));
 }
 
-function getComments(image){
-    let uriComments = image.links.comments.href;
-    let prosimeComments = loadResource(uriComments);
-
-    prosimeComments.then(collection =>{
-        let comments = [];
-
-        collection.comments.forEach(c =>{
-            let comment = {
+/**
+ * Charge et affiche les commentaires associés à une photo.
+ * @param {Object} image - Données complètes de la photo.
+ */
+function getComments(image) {
+    const uriComments = image.links.comments.href;
+    loadResource(uriComments)
+        .then(collection => {
+            const comments = collection.comments.map(c => ({
                 id: c.id,
                 titre: c.titre,
                 content: c.content,
                 pseudo: c.pseudo,
                 date: c.date,
-            }
-            comments.push(comment);
+            }));
+            displayComments(comments);
         })
-        // console.log(comments);
-        displayComments(comments);
-    })
-
+        .catch(err => console.error("Erreur chargement commentaires :", err));
 }
 
-
+// Chargement automatique si l'URL contient un ID de photo
 getPicture(window.location.hash ? window.location.hash.substr(1) : 105);
-// console.log("idfjope");
-document.getElementById("buttonGallery").addEventListener("click", e =>{
-    // console.log('Bonjiir')
-    let galleryData = load();
 
-})
-
-
+// Bouton pour recharger la galerie
+document.getElementById("buttonGallery").addEventListener("click", () => {
+    load().catch(err => console.error("Erreur lors du chargement de la galerie :", err));
+});
