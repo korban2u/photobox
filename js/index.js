@@ -50,6 +50,7 @@ function getCategorie(image) {
  */
 function getComments(image) {
     const uriComments = image.links.comments.href;
+    console.log(uriComments);
     loadResource(uriComments)
         .then(collection => {
             const comments = collection.comments.map(c => ({
@@ -60,6 +61,37 @@ function getComments(image) {
                 date: c.date,
             }));
             displayComments(comments);
+
+
+            let form = document.getElementById("commentForm");
+            form.addEventListener("submit", (e) => {
+                e.preventDefault()
+                const pseudo = document.getElementById("pseudo");
+                const titre = document.getElementById("titreComment");
+                const comment = document.getElementById("commentaire");
+
+                let json_data = JSON.stringify({
+                        titre: titre.value.trim(),
+                        pseudo: pseudo.value.trim(),
+                        content: comment.value.trim()
+                    }
+                )
+
+                fetch(API.WEB_ETU_URL + uriComments, {
+                    method: 'POST',
+                    body: json_data,
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': "application/json"
+                    }
+                }).catch(err =>{
+                    console.log(err);
+                });
+
+                console.log("fini");
+
+
+            })
         })
         .catch(err => console.error("Erreur chargement commentaires :", err));
 }
@@ -71,3 +103,5 @@ getPicture(window.location.hash ? window.location.hash.substr(1) : 105);
 document.getElementById("buttonGallery").addEventListener("click", () => {
     load().catch(err => console.error("Erreur lors du chargement de la galerie :", err));
 });
+
+
