@@ -1,3 +1,4 @@
+import {getPicture} from "./index.js";
 
 let currentGalleryData = null;
 let currentPhotoIndex = 0;
@@ -47,6 +48,9 @@ export function openLightbox(photoId) {
 
     if (currentPhotoIndex === -1) return;
 
+    // Charger la photo principale
+    getPicture(photoId);
+
     showCurrentImage();
     document.getElementById("lightbox").classList.add("active");
 }
@@ -86,7 +90,19 @@ function showCurrentImage() {
 function showPrevImage() {
     if (currentPhotoIndex > 0) {
         currentPhotoIndex--;
+        const currentPhoto = currentGalleryData.photos[currentPhotoIndex];
+
+        // Charger la photo principale
+        getPicture(currentPhoto.id);
+
         showCurrentImage();
+    } else {
+        // On est au début, demander confirmation pour changer de page
+        if (confirm("Vous êtes à la première photo. Voulez-vous aller à la page précédente ?")) {
+            // Ici on pourrait ajouter la logique pour changer de page
+            // Pour l'instant, on ferme la lightbox
+            closeLightbox();
+        }
     }
 }
 
@@ -96,6 +112,18 @@ function showPrevImage() {
 function showNextImage() {
     if (currentPhotoIndex < currentGalleryData.photos.length - 1) {
         currentPhotoIndex++;
+        const currentPhoto = currentGalleryData.photos[currentPhotoIndex];
+
+        // Charger la photo principale
+        getPicture(currentPhoto.id);
+
         showCurrentImage();
+    } else {
+        // On est à la fin, demander confirmation pour changer de page
+        if (confirm("Vous êtes à la dernière photo. Voulez-vous aller à la page suivante ?")) {
+            // Ici on pourrait ajouter la logique pour changer de page
+            // Pour l'instant, on ferme la lightbox
+            closeLightbox();
+        }
     }
 }

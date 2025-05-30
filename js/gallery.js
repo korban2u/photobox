@@ -1,4 +1,3 @@
-
 import {loadResource} from "./lib/photoloader";
 import {API} from "./lib/phox_api";
 import {display_galerie} from "./gallery_ui";
@@ -46,10 +45,19 @@ export async function loadPhotos(photosPromesse) {
         document.getElementById("last")?.addEventListener("click", () => last(galleryData));
         document.getElementById("first")?.addEventListener("click", () => first(galleryData));
 
-        // Clic sur une image pour ouvrir la lightbox
+        // Mettre à jour l'état des boutons
+        updateNavigationButtons(galleryData);
+
+        // Clic sur une image pour ouvrir la lightbox ET changer la photo principale
         document.querySelectorAll("img[data-photoId]").forEach(img => {
             img.addEventListener("click", () => {
-                openLightbox(img.dataset.photoid);
+                const photoId = img.dataset.photoid;
+
+                // Charger la photo dans la page principale
+                getPicture(photoId);
+
+                // Ouvrir la lightbox
+                openLightbox(photoId);
             });
         });
 
@@ -85,4 +93,49 @@ export function first(gallery){
 export function last(gallery){
     const photoPromesse = loadResource(gallery.links.last.href);
     return loadPhotos(photoPromesse)
+}
+
+/**
+ * Met à jour l'état des boutons de navigation (grisés si pas disponibles)
+ * @param {Object} gallery - Données actuelles de la galerie avec liens
+ */
+function updateNavigationButtons(gallery) {
+    const nextBtn = document.getElementById("next");
+    const prevBtn = document.getElementById("prev");
+    const firstBtn = document.getElementById("first");
+    const lastBtn = document.getElementById("last");
+
+    // Méthode simple : on regarde si les liens existent et s'ils sont différents
+
+    // Pour la première page : si prev existe et qu'il est différent de first
+    const isFirstPage = !gallery.links.prev ||
+        (gallery.links.prev && gallery.links.first &&
+            gallery.links.prev.href === gallery.links.first.href);
+
+    // Pour la dernière page : si next n'existe pas OU si next est égal à last
+    const isLastPage = !gallery.links.next ||
+        (gallery.links.next && gallery.links.last &&
+            gallery.links.next.href === gallery.links.last.href);
+
+    // Désactiver prev et first si on est à la première page
+    if (prevBtn) {
+        prevBtn.disabled = isFirstPage;
+        prevBtn.style.opacity = isFirstPage ? "0.5" : "1";
+    }
+
+    if (firstBtn) {
+        firstBtn.disabled = isFirstPage;
+        firstBtn.style.opacity = isFirstPage ? "0.5" : "1";
+    }
+
+    // Désactiver next et last si on est à la dernière page
+    if (nextBtn) {
+        nextBtn.disabled = isLastPage;
+        nextBtn.style.opacity = isLastPage ? "0.5" : "1";
+    }
+
+    if (lastBtn) {
+        lastBtn.disabled = isLastPage;
+        lastBtn.style.opacity = isLastPage ? "0.5" : "1";
+    }
 }
