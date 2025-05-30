@@ -108,14 +108,15 @@ function updateNavigationButtons(gallery) {
     // Méthode simple : on regarde si les liens existent et s'ils sont différents
 
     // Pour la première page : si prev existe et qu'il est différent de first
-    const isFirstPage = !gallery.links.prev ||
-        (gallery.links.prev && gallery.links.first &&
-            gallery.links.prev.href === gallery.links.first.href);
+    const isFirstPage = gallery.links.prev.href === gallery.links.first.href && !gallery.links.next.href.includes("page=3");
 
     // Pour la dernière page : si next n'existe pas OU si next est égal à last
-    const isLastPage = !gallery.links.next ||
-        (gallery.links.next && gallery.links.last &&
-            gallery.links.next.href === gallery.links.last.href);
+    let url = gallery.links.last.href;
+    let match = url.match(/page=(\d+)/);
+    let page = match ? parseInt(match[1]) -2 : null;
+    const isLastPage = gallery.links.next.href === gallery.links.last.href && !gallery.links.prev.href.includes("page=" + page);
+
+
 
     // Désactiver prev et first si on est à la première page
     if (prevBtn) {
