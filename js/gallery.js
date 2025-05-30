@@ -1,7 +1,9 @@
+
 import {loadResource} from "./lib/photoloader";
 import {API} from "./lib/phox_api";
 import {display_galerie} from "./gallery_ui";
 import {getPicture} from "./index.js";
+import {initLightbox, openLightbox} from "./lightbox.js";
 
 /**
  * Lance le chargement initial de la galerie.
@@ -35,17 +37,19 @@ export async function loadPhotos(photosPromesse) {
 
         display_galerie(galleryData);
 
+        // Initialiser la lightbox avec les données de la galerie
+        initLightbox(galleryData);
+
         // Ajout des gestionnaires pour la navigation
         document.getElementById("next")?.addEventListener("click", () => next(galleryData));
         document.getElementById("prev")?.addEventListener("click", () => prev(galleryData));
         document.getElementById("last")?.addEventListener("click", () => last(galleryData));
         document.getElementById("first")?.addEventListener("click", () => first(galleryData));
 
-        // Clic sur une image pour afficher les détails
+        // Clic sur une image pour ouvrir la lightbox
         document.querySelectorAll("img[data-photoId]").forEach(img => {
             img.addEventListener("click", () => {
-                window.location.hash = img.dataset.photoid;
-                getPicture(img.dataset.photoid);
+                openLightbox(img.dataset.photoid);
             });
         });
 
@@ -73,7 +77,6 @@ export function prev(gallery) {
     return loadPhotos(photosPromesse);
 }
 
-
 export function first(gallery){
     const photoPromesse = loadResource(gallery.links.first.href);
     return loadPhotos(photoPromesse)
@@ -83,4 +86,3 @@ export function last(gallery){
     const photoPromesse = loadResource(gallery.links.last.href);
     return loadPhotos(photoPromesse)
 }
-

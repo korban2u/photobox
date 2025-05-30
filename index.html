@@ -33,6 +33,19 @@
 
 </main>
 
+<div id="lightbox" class="lightbox">
+    <button class="lightbox-close" id="lightbox-close">&times;</button>
+    <button class="lightbox-nav lightbox-prev" id="lightbox-prev">&#8249;</button>
+    <button class="lightbox-nav lightbox-next" id="lightbox-next">&#8250;</button>
+
+    <div class="lightbox-content">
+        <img id="lightbox-image" src="" alt="">
+        <div class="lightbox-info" id="lightbox-info">
+            <span id="lightbox-title"></span>
+        </div>
+    </div>
+</div>
+
 <script id="photoTemplate" type="text/x-handlebars-template">
     <h1>Photo : {{id}}</h1>
     <img src="{{url}}">
