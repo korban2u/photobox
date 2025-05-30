@@ -51,6 +51,7 @@ function getCategorie(image) {
 function getComments(image) {
     const uriComments = image.links.comments.href;
     console.log(uriComments);
+
     loadResource(uriComments)
         .then(collection => {
             const comments = collection.comments.map(c => ({
@@ -62,36 +63,67 @@ function getComments(image) {
             }));
             displayComments(comments);
 
+            // Supprimer les anciens event listeners pour éviter les doublons
+            const existingForm = document.getElementById("commentForm");
+            if (existingForm) {
+                existingForm.replaceWith(existingForm.cloneNode(true));
+            }
 
-            let form = document.getElementById("commentForm");
-            form.addEventListener("submit", (e) => {
-                e.preventDefault()
-                const pseudo = document.getElementById("pseudo");
-                const titre = document.getElementById("titreComment");
-                const comment = document.getElementById("commentaire");
+            const form = document.getElementById("commentForm");
+            if (form) {
+                form.addEventListener("submit", async (e) => {
+                    e.preventDefault();
 
-                let json_data = JSON.stringify({
+                    const pseudo = document.getElementById("pseudo");
+                    const titre = document.getElementById("titreComment");
+                    const comment = document.getElementById("commentaire");
+
+                    // Vérification que les champs ne sont pas vides
+                    if (!pseudo.value.trim() || !titre.value.trim() || !comment.value.trim()) {
+                        alert("Tous les champs sont obligatoires !");
+                        return;
+                    }
+
+                    const json_data = JSON.stringify({
                         titre: titre.value.trim(),
                         pseudo: pseudo.value.trim(),
                         content: comment.value.trim()
-                    }
-                )
+                    });
 
-                fetch(API.WEB_ETU_URL + uriComments, {
-                    method: 'POST',
-                    body: json_data,
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': "application/json"
+                    try {
+                        const response = await fetch(API.WEB_ETU_URL + uriComments, {
+                            method: 'POST',
+                            body: json_data,
+                            credentials: 'include',
+                            headers: {
+                                'Content-Type': "application/json"
+                            }
+                        });
+
+                        if (response.ok) {
+                            // Succès : vider les champs et recharger les commentaires
+                            pseudo.value = '';
+                            titre.value = '';
+                            comment.value = '';
+
+                            console.log("Commentaire ajouté avec succès !");
+
+                            // Recharger les commentaires pour voir le nouveau
+                            setTimeout(() => {
+                                getComments(image);
+                            }, 500);
+
+                        } else {
+                            console.error("Erreur lors de l'envoi :", response.status, response.statusText);
+                            alert("Erreur lors de l'envoi du commentaire. Veuillez réessayer.");
+                        }
+
+                    } catch (err) {
+                        console.error("Erreur réseau :", err);
+                        alert("Erreur de connexion. Veuillez vérifier votre connexion internet.");
                     }
-                }).catch(err =>{
-                    console.log(err);
                 });
-
-                console.log("fini");
-
-
-            })
+            }
         })
         .catch(err => console.error("Erreur chargement commentaires :", err));
 }
