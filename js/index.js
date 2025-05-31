@@ -48,85 +48,90 @@ function getCategorie(image) {
  * Charge et affiche les commentaires associés à une photo.
  * @param {Object} image - Données complètes de la photo.
  */
-function getComments(image) {
+async function getComments(image) {
     const uriComments = image.links.comments.href;
-    console.log(uriComments);
 
-    loadResource(uriComments)
-        .then(collection => {
-            const comments = collection.comments.map(c => ({
-                id: c.id,
-                titre: c.titre,
-                content: c.content,
-                pseudo: c.pseudo,
-                date: c.date,
-            }));
-            displayComments(comments);
-
-            // Supprimer les anciens event listeners pour éviter les doublons
-            const existingForm = document.getElementById("commentForm");
-            if (existingForm) {
-                existingForm.replaceWith(existingForm.cloneNode(true));
-            }
-
-            const form = document.getElementById("commentForm");
-            if (form) {
-                form.addEventListener("submit", async (e) => {
-                    e.preventDefault();
-
-                    const pseudo = document.getElementById("pseudo");
-                    const titre = document.getElementById("titreComment");
-                    const comment = document.getElementById("commentaire");
-
-                    // Vérification que les champs ne sont pas vides
-                    if (!pseudo.value.trim() || !titre.value.trim() || !comment.value.trim()) {
-                        alert("Tous les champs sont obligatoires !");
-                        return;
-                    }
-
-                    const json_data = JSON.stringify({
-                        titre: titre.value.trim(),
-                        pseudo: pseudo.value.trim(),
-                        content: comment.value.trim()
-                    });
-
-                    try {
-                        const response = await fetch(API.WEB_ETU_URL + uriComments, {
-                            method: 'POST',
-                            body: json_data,
-                            credentials: 'include',
-                            headers: {
-                                'Content-Type': "application/json"
-                            }
-                        });
-
-                        if (response.ok) {
-                            // Succès : vider les champs et recharger les commentaires
-                            pseudo.value = '';
-                            titre.value = '';
-                            comment.value = '';
-
-                            console.log("Commentaire ajouté avec succès !");
-
-                            // Recharger les commentaires pour voir le nouveau
-                            setTimeout(() => {
-                                getComments(image);
-                            }, 500);
-
-                        } else {
-                            console.error("Erreur lors de l'envoi :", response.status, response.statusText);
-                            alert("Erreur lors de l'envoi du commentaire. Veuillez réessayer.");
-                        }
-
-                    } catch (err) {
-                        console.error("Erreur réseau :", err);
-                        alert("Erreur de connexion. Veuillez vérifier votre connexion internet.");
-                    }
-                });
-            }
-        })
-        .catch(err => console.error("Erreur chargement commentaires :", err));
+    try {
+        const comments = await fetchLastComments(uriComments);
+        displayComments(comments);
+        setupCommentForm(image, uriComments);
+    } catch (err) {
+        console.error("Erreur chargement commentaires :", err);
+    }
 }
+
+// Récupère les derniers commentaires
+async function fetchLastComments(uriComments) {
+    const collection = await loadResource(uriComments);
+    const lastURI = collection.links?.last?.href || uriComments;
+    const cl = await loadResource(lastURI);
+
+    return cl.comments.map(function(comment) {
+        return {
+            id: comment.id,
+            titre: comment.titre,
+            content: comment.content,
+            pseudo: comment.pseudo,
+            date: comment.date
+        };
+    });
+}
+
+// Prépare le formulaire et gère l'envoi
+function setupCommentForm(image, uriComments) {
+
+
+    const oldForm = document.getElementById("commentForm");
+    if (!oldForm) {
+        return;
+    }
+
+    // on evite de cloner les listener donc on clone et remplace pour les supprimer
+    const newForm = oldForm.cloneNode(true);
+    oldForm.replaceWith(newForm);
+
+    newForm.addEventListener("submit", async  (e) => {
+        e.preventDefault();
+
+        const pseudo = document.getElementById("pseudo");
+        const titre = document.getElementById("titreComment");
+        const comment = document.getElementById("commentaire");
+
+
+        // recup les valeur et on eleve les espaces inutiles
+        const json_data = JSON.stringify({
+            titre: titre.value.trim(),
+            pseudo: pseudo.value.trim(),
+            content: comment.value.trim()
+        });
+
+        try {
+
+            const response = await fetch(API.WEB_ETU_URL + uriComments, {
+                method: 'POST',
+                body: json_data,
+                credentials: 'include',
+                headers: { 'Content-Type': "application/json" }
+            });
+
+            if (response.ok) { // on vide les champs du formulaire
+                pseudo.value = '';
+                titre.value = '';
+                comment.value = '';
+
+                getComments(image); // puis on affiche le nouveau commentaire
+            } else {
+                alert("Erreur lors de l'envoi du commentaire.");
+            }
+        } catch (err) {
+            console.error("Erreur réseau :", err);
+            alert("Erreur de connexion.");
+        }
+    });
+}
+
+
+
 
 // Chargement automatique si l'URL contient un ID de photo
 getPicture(window.location.hash ? window.location.hash.substr(1) : 105);

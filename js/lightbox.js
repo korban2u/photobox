@@ -10,12 +10,11 @@ let currentPhotoIndex = 0;
 export function initLightbox(galleryData) {
     currentGalleryData = galleryData;
 
-    // Gestionnaires d'événements
     document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
     document.getElementById("lightbox-prev").addEventListener("click", showPrevImage);
     document.getElementById("lightbox-next").addEventListener("click", showNextImage);
 
-    // Fermer avec la touche Escape
+    // pour pouvoir fermer avec la touche escape, et utiliser les flèches pour naviger
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
             closeLightbox();
@@ -28,7 +27,7 @@ export function initLightbox(galleryData) {
         }
     });
 
-    // Fermer en cliquant sur l'arrière-plan
+    // pour pouvoir fermer en cliquant sur l'arrière-plan
     document.getElementById("lightbox").addEventListener("click", (e) => {
         if (e.target.id === "lightbox") {
             closeLightbox();
@@ -41,18 +40,21 @@ export function initLightbox(galleryData) {
  * @param {string} photoId - ID de la photo à afficher
  */
 export function openLightbox(photoId) {
-    if (!currentGalleryData) return;
+    if (!currentGalleryData) {
+        return;
+    }
 
-    // Trouver l'index de la photo dans la galerie
+    // trouver l'index de la photo dans la galerie
     currentPhotoIndex = currentGalleryData.photos.findIndex(photo => photo.id == photoId);
 
-    if (currentPhotoIndex === -1) return;
+    if (currentPhotoIndex === -1){
+        return; // si y'a pas de photo selectionner on fait rien
+    }
 
-    // Charger la photo principale
     getPicture(photoId);
 
     showCurrentImage();
-    document.getElementById("lightbox").classList.add("active");
+    document.getElementById("lightbox").classList.add("active"); // pour le css
 }
 
 /**
@@ -76,10 +78,10 @@ function showCurrentImage() {
     document.getElementById("lightbox-image").alt = currentPhoto.titre;
     document.getElementById("lightbox-title").textContent = currentPhoto.titre;
 
-    // Gérer l'état des boutons de navigation
     const prevBtn = document.getElementById("lightbox-prev");
     const nextBtn = document.getElementById("lightbox-next");
 
+    // on affiche ou pas les bouton (first/last)
     prevBtn.style.display = currentPhotoIndex > 0 ? "block" : "none";
     nextBtn.style.display = currentPhotoIndex < currentGalleryData.photos.length - 1 ? "block" : "none";
 }
@@ -92,10 +94,9 @@ function showPrevImage() {
         currentPhotoIndex--;
         const currentPhoto = currentGalleryData.photos[currentPhotoIndex];
 
-        // Mettre à jour l'URL
+        // met à jour l'URL dans le navigateur sans recharger la page
         window.location.hash = currentPhoto.id;
 
-        // Charger la photo principale
         getPicture(currentPhoto.id);
 
         showCurrentImage();
@@ -113,10 +114,10 @@ function showNextImage() {
         currentPhotoIndex++;
         const currentPhoto = currentGalleryData.photos[currentPhotoIndex];
 
-        // Mettre à jour l'URL
+        // met à jour l'URL dans le navigateur sans recharger la page
         window.location.hash = currentPhoto.id;
 
-        // Charger la photo principale
+
         getPicture(currentPhoto.id);
 
         showCurrentImage();

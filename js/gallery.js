@@ -21,7 +21,7 @@ export async function loadPhotos(photosPromesse) {
     try {
         const collection = await photosPromesse;
 
-        // Transformation des données brutes en structure utilisable
+        // On transforme les données en objet pour les afficher plus tard avec la gallerie
         const listPhotos = collection.photos.map(p => ({
             id: p.photo.id,
             titre: p.photo.titre,
@@ -36,19 +36,16 @@ export async function loadPhotos(photosPromesse) {
 
         display_galerie(galleryData);
 
-        // Initialiser la lightbox avec les données de la galerie
         initLightbox(galleryData);
 
-        // Ajout des gestionnaires pour la navigation
         document.getElementById("next")?.addEventListener("click", () => next(galleryData));
         document.getElementById("prev")?.addEventListener("click", () => prev(galleryData));
         document.getElementById("last")?.addEventListener("click", () => last(galleryData));
         document.getElementById("first")?.addEventListener("click", () => first(galleryData));
 
-        // Mettre à jour l'état des boutons
-        updateNavigationButtons(galleryData);
+        updateNavigationButtons(galleryData); // etat du bouton (grisé ou pas)
 
-        // Clic sur une image pour ouvrir la lightbox ET changer la photo principale
+        // clic sur une image pour ouvrir la lightbox ET changer la photo principale
         document.querySelectorAll("img[data-photoId]").forEach(img => {
             img.addEventListener("click", () => {
                 const photoId = img.dataset.photoid;
@@ -108,16 +105,24 @@ function updateNavigationButtons(gallery) {
     const firstBtn = document.getElementById("first");
     const lastBtn = document.getElementById("last");
 
-    // Méthode simple : on regarde si les liens existent et s'ils sont différents
-
-    // Pour la première page : si prev existe et qu'il est différent de first
+    // Détection de la première page :
+    // Compliqué ici car l'API renvoie un lien "prev" même pour la première page,
+    // et que ce lien est identique à celui de la page 2 (ils pointent tout els deux vers la meme page.
+    // ça rend la différentiation difficile.
+    // Solution : on vérifie si le lien "prev" correspond au lien de la première page et
+    // que le lien "next" ne correspond pas à la page 3 (car la vraie première page ne peut pas précéder la page 3).
     const isFirstPage = gallery.links.prev.href === gallery.links.first.href && !gallery.links.next.href.includes("page=3");
 
-    // Pour la dernière page : si next n'existe pas OU si next est égal à last
+    // Détection de la dernière page :
+    // Même principe que pour la première page, il faut contourner une incohérence de l'API.
+    // On récupère le numéro total de pages via le lien "last" (ex: page=5) et on calcule le numéro de l'avant-dernière page (max - 2).
+    // Ensuite, on vérifie que le lien "next" pointe vers la dernière page et
+    // que le lien "prev" n'est pas celui de l'avant-dernière page (car la vraie dernière page ne peut pas suivre cette page).
     let url = gallery.links.last.href;
     let match = url.match(/page=(\d+)/);
-    let page = match ? parseInt(match[1]) -2 : null;
+    let page = match ? parseInt(match[1]) - 2 : null;
     const isLastPage = gallery.links.next.href === gallery.links.last.href && !gallery.links.prev.href.includes("page=" + page);
+
 
 
 

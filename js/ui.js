@@ -6,6 +6,7 @@ import Handlebars from "handlebars";
  * @returns {string} Texte décodé
  */
 function decodeHtmlEntities(text) {
+    // les commentaires avait des caractères bizares donc on les as remplacer
     return text.replace(/&#39;/g, "'")
         .replace(/&quot;/g, '"')
         .replace(/&amp;/g, '&')
@@ -27,7 +28,7 @@ function renderTemplate(templateId, data, targetId) {
 
 /** Affiche une image individuelle */
 export function displayPicture(image) {
-    // Nettoyer le texte avant affichage
+    // on clean le texte avant affichage
     image.titre = decodeHtmlEntities(image.titre);
     image.descr = decodeHtmlEntities(image.descr);
     renderTemplate("#photoTemplate", image, "la_photo");
@@ -35,14 +36,14 @@ export function displayPicture(image) {
 
 /** Affiche une catégorie associée à l'image */
 export function displayCategorie(categorie) {
-    // Nettoyer le texte avant affichage
+    // on clean le texte avant affichage
     categorie.nom = decodeHtmlEntities(categorie.nom);
     renderTemplate("#categorieTemplate", categorie, "la_categorie");
 }
 
 /** Affiche les commentaires liés à une image */
 export function displayComments(comments) {
-    // Nettoyer chaque commentaire
+    // on clean le texte avant affichage
     for (let i = 0; i < comments.length; i++) {
         comments[i].titre = decodeHtmlEntities(comments[i].titre);
         comments[i].content = decodeHtmlEntities(comments[i].content);
