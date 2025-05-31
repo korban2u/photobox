@@ -126,5 +126,5 @@ https://webetu.iutnc.univ-lorraine.fr/www/canals5/phox/api
 
 ## 👥 Équipe
 
-- **Ryan Korban** - Développement principal
-- **Baptiste Delaborde** - Développement principal
+- **Ryan Korban** 
+- **Baptiste Delaborde** 
