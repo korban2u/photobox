@@ -53,6 +53,9 @@ export async function loadPhotos(photosPromesse) {
             img.addEventListener("click", () => {
                 const photoId = img.dataset.photoid;
 
+                // Mettre à jour l'URL avec l'ID de la photo
+                window.location.hash = photoId;
+
                 // Charger la photo dans la page principale
                 getPicture(photoId);
 

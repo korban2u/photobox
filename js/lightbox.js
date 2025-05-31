@@ -92,19 +92,18 @@ function showPrevImage() {
         currentPhotoIndex--;
         const currentPhoto = currentGalleryData.photos[currentPhotoIndex];
 
+        // Mettre à jour l'URL
+        window.location.hash = currentPhoto.id;
+
         // Charger la photo principale
         getPicture(currentPhoto.id);
 
         showCurrentImage();
-    } else {
-        // On est au début, demander confirmation pour changer de page
-        if (confirm("Vous êtes à la première photo. Voulez-vous aller à la page précédente ?")) {
-            // Ici on pourrait ajouter la logique pour changer de page
-            // Pour l'instant, on ferme la lightbox
-            closeLightbox();
-        }
     }
+    // Si on est au début, on ne fait rien (le bouton sera caché)
 }
+
+
 
 /**
  * Affiche l'image suivante
@@ -114,16 +113,13 @@ function showNextImage() {
         currentPhotoIndex++;
         const currentPhoto = currentGalleryData.photos[currentPhotoIndex];
 
+        // Mettre à jour l'URL
+        window.location.hash = currentPhoto.id;
+
         // Charger la photo principale
         getPicture(currentPhoto.id);
 
         showCurrentImage();
-    } else {
-        // On est à la fin, demander confirmation pour changer de page
-        if (confirm("Vous êtes à la dernière photo. Voulez-vous aller à la page suivante ?")) {
-            // Ici on pourrait ajouter la logique pour changer de page
-            // Pour l'instant, on ferme la lightbox
-            closeLightbox();
-        }
     }
+    // Si on est à la fin, on ne fait rien (le bouton sera caché)
 }
